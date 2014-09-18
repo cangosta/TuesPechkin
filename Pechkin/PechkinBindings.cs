@@ -127,14 +127,16 @@ namespace TuesPechkin
         private static void SetupUnmanagedAssembly(string fileName, byte[] assemblyRaw)
         {
             var assemblyName = Assembly.GetExecutingAssembly().GetName();
-            var basePath = Path.Combine(
-                Path.GetTempPath(),
-                String.Format(
+
+            // computes an hash value from the folder name in order to limit its size
+            var libDirectoryPathHash = Math.Abs(String.Format(
                     "{0}{1}_{2}_{3}",
                     assemblyName.Name.ToString(),
                     assemblyName.Version.ToString(),
                     IntPtr.Size == 8 ? "x64" : "x86",
-                    String.Join(String.Empty, AppDomain.CurrentDomain.BaseDirectory.Split(Path.GetInvalidFileNameChars()))));
+                    String.Join(String.Empty, AppDomain.CurrentDomain.BaseDirectory.Split(Path.GetInvalidFileNameChars()))).GetHashCode());
+
+            var basePath = Path.Combine( Path.GetTempPath(), libDirectoryPathHash.ToString());
 
             if (!Directory.Exists(basePath))
             {
